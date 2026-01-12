@@ -35,13 +35,13 @@ jobs:
 
           # 👍 があれば likes.md に追記
           if echo "$REACTIONS" | grep -q '"+1"'; then
-            echo "$ENTRY" >> feedback/likes.md
+            echo "$ENTRY" >> likes.md
             CHANGED=true
           fi
 
           # 👎 があれば dislikes.md に追記
           if echo "$REACTIONS" | grep -q '"-1"'; then
-            echo "$ENTRY" >> feedback/dislikes.md
+            echo "$ENTRY" >> dislikes.md
             CHANGED=true
           fi
 
@@ -49,7 +49,7 @@ jobs:
           if [ "$CHANGED" = true ]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add feedback/
+            git add likes.md dislikes.md
             git commit -m "Record feedback for #${ISSUE_NUMBER}"
             git push
           fi

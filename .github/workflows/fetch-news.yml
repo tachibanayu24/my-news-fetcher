@@ -36,7 +36,7 @@ jobs:
             1. Issue #1 (TARGET_TOPICS) を取得:
                gh issue view 1 --json body
 
-            2. feedback/likes.md と feedback/dislikes.md を読んで好みを把握
+            2. likes.md と dislikes.md を読んで好みを把握
 
             3. 既存のニュースIssueを確認（重複防止）:
                gh issue list --search "📰 in:title" --json title,body --limit 50
@@ -50,17 +50,21 @@ jobs:
                - 各トピックにつき最大3件
 
             5. 見つかったニュースそれぞれに対してIssueを作成（1ニュース = 1 Issue）:
-               gh issue create --title "📰 ニュース内容の要約（30文字以内）" --body "..."
+               gh issue create --title "📰 ニュース内容の要約（30文字以内）" --body "本文"
 
-               【本文フォーマット】
-               **サマリー**: 150文字以内の要約
+               【本文のMarkdownフォーマット（必ずこの形式で）】
+               ```
+               ## サマリー
+               150文字以内の要約をここに書く
 
-               **URL**: 元記事へのリンク
+               ## URL
+               https://example.com/news/xxx
 
-               **ポイント**:
+               ## ポイント
                - ポイント1
                - ポイント2
                - ポイント3
+               ```
 
             ## 重要
             - 必ず複数のIssueを作成すること（ニュースが見つかった数だけ）
