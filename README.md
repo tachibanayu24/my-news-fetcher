@@ -5,31 +5,20 @@ GitHub Actions + Claude Code で毎朝自動でニュースを収集・要約し
 ## ワークフロー
 
 ```mermaid
-flowchart TD
-    subgraph 毎朝8時 / 手動実行
-        A[fetch-news.yml] --> B[Issue #1 からトピック取得]
-        B --> C[likes.md / dislikes.md で好み把握]
-        C --> D[Web検索で最新ニュース取得]
-        D --> E[ニュースごとにIssue作成]
+flowchart LR
+    subgraph fetch[毎朝8時]
+        T --> A[トピック取得] --> B[好み把握] --> C[Web検索] --> D[Issue作成]
     end
 
-    subgraph ユーザー操作
-        E --> F[ニュースIssueを読む]
-        F --> G{フィードバック}
-        G -->|良い| H[👍 をつける]
-        G -->|悪い| I[👎 をつける]
-        H --> J[Issue を close]
-        I --> J
+    subgraph user[ユーザー]
+        D --> E[読む] --> F[👍 or 👎] --> G[close]
     end
 
-    subgraph close時
-        J --> K[on-close.yml]
-        K --> L{リアクション確認}
-        L -->|👍| M[likes.md に追記]
-        L -->|👎| N[dislikes.md に追記]
-        M --> O[次回のニュース選定に反映]
-        N --> O
+    subgraph feedback[フィードバック]
+        G --> H[likes/dislikes.md に記録]
     end
+
+    H -.->|次回反映| B
 ```
 
 ## 使い方
