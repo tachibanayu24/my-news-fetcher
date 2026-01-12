@@ -11,33 +11,45 @@ jobs:
     permissions:
       contents: write
       issues: read
-      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Run Claude Code
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: |
-            --model claude-opus-4-5-20251101
-            --allowedTools "Read,Write,Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(gh api:*)"
-          prompt: |
-            closeされたIssueのリアクションを確認してフィードバックを記録:
+      - name: Record feedback
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          # リアクションを取得
+          REACTIONS=$(gh api repos/${{ github.repository }}/issues/${ISSUE_NUMBER}/reactions --jq '[.[].content] | unique')
 
-            1. Issueのリアクションを取得:
-               gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/reactions
+          # URLを本文から抽出
+          URL=$(echo "$ISSUE_BODY" | grep -oP 'https?://[^\s\)]+' | head -1)
 
-            2. リアクションに応じて処理:
-               - 👍 (+1) があれば feedback/likes.md に追記
-               - 👎 (-1) があれば feedback/dislikes.md に追記
-               - どちらもなければ何もしない
+          # エントリを作成
+          ENTRY="- ${ISSUE_TITLE} | ${URL}"
 
-            3. 追記フォーマット:
-               - Issueタイトル | URL（本文から抽出）
+          CHANGED=false
 
-            4. 変更があればコミット＆プッシュ:
-               git add feedback/
-               git commit -m "Record feedback for #${{ github.event.issue.number }}"
-               git push
+          # 👍 があれば likes.md に追記
+          if echo "$REACTIONS" | grep -q '"+1"'; then
+            echo "$ENTRY" >> feedback/likes.md
+            CHANGED=true
+          fi
+
+          # 👎 があれば dislikes.md に追記
+          if echo "$REACTIONS" | grep -q '"-1"'; then
+            echo "$ENTRY" >> feedback/dislikes.md
+            CHANGED=true
+          fi
+
+          # 変更があればコミット＆プッシュ
+          if [ "$CHANGED" = true ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add feedback/
+            git commit -m "Record feedback for #${ISSUE_NUMBER}"
+            git push
+          fi
