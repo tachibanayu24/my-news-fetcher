@@ -1,0 +1,46 @@
+name: Fetch Daily News
+
+on:
+  schedule:
+    - cron: "0 23 * * *" # JST 08:00
+  workflow_dispatch: # 手動実行
+
+jobs:
+  fetch-news:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-opus-4-5-20251101
+            --allowedTools "WebSearch,Read,Bash(gh issue view:*),Bash(gh issue create:*)"
+          prompt: |
+            1. Issue #1 (TARGET_TOPICS) を取得:
+               gh issue view 1 --json body
+
+            2. feedback/likes.md と feedback/dislikes.md を読んで好みを把握
+
+            3. 各トピックについて今日の最新ニュースをWeb検索で取得
+               - likes.md の傾向に合うニュースを優先
+               - dislikes.md の傾向に合うニュースは除外
+
+            4. 以下のフォーマットでIssueを作成:
+               【タイトル】📰 ニュース内容の要約（30文字以内）
+               【本文】
+               - サマリー: 150文字以内
+               - URL: 元記事へのリンク
+               - ポイント: 箇条書き3つ
+
+            5. Issue作成:
+               gh issue create --title "📰 要約" --body "..."

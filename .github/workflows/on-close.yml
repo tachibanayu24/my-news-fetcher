@@ -1,0 +1,43 @@
+name: Record Feedback
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  record-feedback:
+    if: startsWith(github.event.issue.title, '📰')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-opus-4-5-20251101
+            --allowedTools "Read,Write,Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(gh api:*)"
+          prompt: |
+            closeされたIssueのリアクションを確認してフィードバックを記録:
+
+            1. Issueのリアクションを取得:
+               gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/reactions
+
+            2. リアクションに応じて処理:
+               - 👍 (+1) があれば feedback/likes.md に追記
+               - 👎 (-1) があれば feedback/dislikes.md に追記
+               - どちらもなければ何もしない
+
+            3. 追記フォーマット:
+               - Issueタイトル | URL（本文から抽出）
+
+            4. 変更があればコミット＆プッシュ:
+               git add feedback/
+               git commit -m "Record feedback for #${{ github.event.issue.number }}"
+               git push
