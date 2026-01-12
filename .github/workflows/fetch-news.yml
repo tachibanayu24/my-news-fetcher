@@ -24,23 +24,44 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: |
             --model claude-opus-4-5-20251101
-            --allowedTools "WebSearch,Read,Bash(gh issue view:*),Bash(gh issue create:*)"
+            --allowedTools "WebSearch,Read,Bash(gh issue view:*),Bash(gh issue create:*),Bash(gh issue list:*),Bash(date:*)"
           prompt: |
+            今日の日付: $(date +%Y-%m-%d)
+
+            ## タスク
+            各トピックについて最新ニュースを検索し、ニュースごとに個別のIssueを作成する。
+
+            ## 手順
+
             1. Issue #1 (TARGET_TOPICS) を取得:
                gh issue view 1 --json body
 
             2. feedback/likes.md と feedback/dislikes.md を読んで好みを把握
 
-            3. 各トピックについて今日の最新ニュースをWeb検索で取得
+            3. 既存のニュースIssueを確認（重複防止）:
+               gh issue list --search "📰 in:title" --json title,body --limit 50
+
+            4. 各トピックについてWeb検索で最新ニュースを取得
+               - 必ず「今日の日付」を検索クエリに含める（例: "LLM 2026年1月13日"）
+               - 24時間以内に公開されたニュースのみを対象
                - likes.md の傾向に合うニュースを優先
                - dislikes.md の傾向に合うニュースは除外
+               - 既存Issueと同じURLまたは同じ内容のニュースはスキップ
+               - 各トピックにつき最大3件
 
-            4. 以下のフォーマットでIssueを作成:
-               【タイトル】📰 ニュース内容の要約（30文字以内）
-               【本文】
-               - サマリー: 150文字以内
-               - URL: 元記事へのリンク
-               - ポイント: 箇条書き3つ
+            5. 見つかったニュースそれぞれに対してIssueを作成（1ニュース = 1 Issue）:
+               gh issue create --title "📰 ニュース内容の要約（30文字以内）" --body "..."
 
-            5. Issue作成:
-               gh issue create --title "📰 要約" --body "..."
+               【本文フォーマット】
+               **サマリー**: 150文字以内の要約
+
+               **URL**: 元記事へのリンク
+
+               **ポイント**:
+               - ポイント1
+               - ポイント2
+               - ポイント3
+
+            ## 重要
+            - 必ず複数のIssueを作成すること（ニュースが見つかった数だけ）
+            - 1つのIssueに複数のニュースをまとめないこと
