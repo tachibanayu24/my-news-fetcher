@@ -4,3 +4,4 @@
 - 📰 香り分析スタートアップのレボーン、4.3億円を調達 | https://www.nikkei.com/article/DGXZQOUC09B8Y0Z00C26A1000000/
 - 📰 GoogleがGmailにGemini AI機能を本格導入、30億ユーザーに展開 | https://www.cnbc.com/2026/01/08/google-adds-gemini-features-to-gmail-message-summaries-proofreading-.html
 - 📰 TOブックス、2026年2月13日に東証上場へ | https://www.ipokiso.com/company/index.html
+- 📰 SUPWAT、製造業設計効率化サービスで約2億円調達 | https://www.nikkei.com/article/DGXZQOUC09B8Y0Z00C26A1000000/
