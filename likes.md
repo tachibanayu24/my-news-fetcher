@@ -7,3 +7,4 @@
 - 📰 TOブックス、2026年2月13日に東証上場へ | https://www.ipokiso.com/company/index.html
 - 📰 SUPWAT、製造業設計効率化サービスで約2億円調達 | https://www.nikkei.com/article/DGXZQOUC09B8Y0Z00C26A1000000/
 - 📰 TOブックス、2026年2月13日に東証上場へ | https://www.ipokiso.com/company/index.html
+- 📰 2026年スタートアップ市況、VCとスタートアップで認識に2倍の差 | https://prtimes.jp/main/html/rd/p/000000018.000078333.html
