@@ -6,16 +6,32 @@ on:
 
 jobs:
   record-feedback:
-    if: startsWith(github.event.issue.title, '📰')
+    if: contains(github.event.issue.labels.*.name, 'news')
     runs-on: ubuntu-latest
     permissions:
       contents: write
       issues: read
     steps:
+      - name: Check if reactions exist
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          REACTIONS=$(gh api repos/${{ github.repository }}/issues/${ISSUE_NUMBER}/reactions --jq '[.[].content] | unique')
+          if echo "$REACTIONS" | grep -qE '"\+1"|"-1"'; then
+            echo "has_feedback=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_feedback=false" >> $GITHUB_OUTPUT
+            echo "No 👍 or 👎 reactions found, skipping..."
+          fi
+
       - name: Checkout repository
+        if: steps.check.outputs.has_feedback == 'true'
         uses: actions/checkout@v5
 
       - name: Record feedback
+        if: steps.check.outputs.has_feedback == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           ISSUE_TITLE: ${{ github.event.issue.title }}

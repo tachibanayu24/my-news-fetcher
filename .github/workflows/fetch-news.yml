@@ -52,7 +52,7 @@ jobs:
                - 各トピックにつき最大3件
 
             5. 見つかったニュースそれぞれに対してIssueを作成（1ニュース = 1 Issue）:
-               gh issue create --title "📰 ニュース内容の要約（30文字以内）" --body "本文"
+               gh issue create --title "📰 ニュース内容の要約（30文字以内）" --body "本文" --label "news"
 
                【本文のMarkdownフォーマット（必ずこの形式で）】
                ```
